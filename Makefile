@@ -27,4 +27,4 @@ migration:
 	migrate create -seq -ext=sql -dir=$(MIGRATION_DIR) $(name)
 
 migration-up:
-	migrate -path=$(MIGRATION_DIR) -database $(DATABASE_DSN) up
+	migrate -path=$(MIGRATION_DIR) -database=$(DATABASE_DSN) up

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jfilipedias/greenlight/internal/data"
+	"github.com/jfilipedias/greenlight/internal/validator"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +20,20 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	m := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
+	}
+
+	v := validator.New()
+
+	if data.ValidateMovie(v, m); !v.Valid() {
+		app.unprocessableEntityResponse(w, r, v.Errors)
 		return
 	}
 

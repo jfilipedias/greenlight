@@ -5,6 +5,7 @@ export
 
 CMD_DIR=./cmd/api
 BINARY_NAME=./bin/api
+MIGRATION_DIR=./migrations
 
 tidy:
 	go fmt ./...
@@ -21,3 +22,9 @@ run:
 
 help:
 	go run $(CMD_DIR) -help
+
+migration:
+	migrate create -seq -ext=sql -dir=$(MIGRATION_DIR) $(name)
+
+migration-up:
+	migrate -path=$(MIGRATION_DIR) -database $(DATABASE_DSN) up

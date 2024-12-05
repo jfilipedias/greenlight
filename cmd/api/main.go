@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jfilipedias/greenlight/internal/data"
 	_ "github.com/lib/pq"
 )
 
@@ -29,6 +30,7 @@ type config struct {
 type application struct {
 	config config
 	logger *slog.Logger
+	models data.Models
 }
 
 func main() {
@@ -56,7 +58,11 @@ func main() {
 
 	logger.Info("database connection pool established")
 
-	app := &application{cfg, logger}
+	app := &application{
+		config: cfg,
+		logger: logger,
+		models: data.NewModels(db),
+	}
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),

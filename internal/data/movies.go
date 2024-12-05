@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/jfilipedias/greenlight/internal/validator"
@@ -31,4 +32,24 @@ func ValidateMovie(v *validator.Validator, m *Movie) {
 	v.Check(len(m.Genres) >= 1, "genres", "must contain at least 1 genre")
 	v.Check(len(m.Genres) <= 5, "genres", "must not contain more than 5 genres")
 	v.Check(validator.Unique(m.Genres), "genres", "must not contain duplicated values")
+}
+
+type MovieModel struct {
+	DB *sql.DB
+}
+
+func (m MovieModel) Insert(movie *Movie) error {
+	return nil
+}
+
+func (m MovieModel) Get(id int64) (*Movie, error) {
+	return nil, nil
+}
+
+func (m MovieModel) Update(movie *Movie) error {
+	return nil
+}
+
+func (m MovieModel) Delete(id int64) error {
+	return nil
 }

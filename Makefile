@@ -16,7 +16,7 @@ clean:
 
 build:
 	go build -o $(BINARY_NAME) $(CMD_DIR)
-	
+
 run:
 	go run $(CMD_DIR)
 

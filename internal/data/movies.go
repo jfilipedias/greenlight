@@ -97,7 +97,7 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 	query := fmt.Sprintf(`
 		SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
 		FROM movies
-		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') 
+		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
 			AND (genres @> $2 OR $2 = '{}')
 		ORDER BY %s %s, id ASC
 		LIMIT $3 OFFSET $4;`, filters.sortColumn(), filters.sortDirection())
@@ -168,7 +168,7 @@ func (m MovieModel) Update(movie *Movie) error {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ErrEditConfig
+			return ErrEditConflict
 		default:
 			return err
 		}
@@ -183,7 +183,7 @@ func (m MovieModel) Delete(id int64) error {
 	}
 
 	query := `
-		DELETE FROM movies 
+		DELETE FROM movies
 		WHERE id = $1;`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

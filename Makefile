@@ -28,3 +28,7 @@ migration:
 
 migration-up:
 	migrate -path=$(MIGRATION_DIR) -database=$(DATABASE_DSN) up
+
+
+migration-down:
+	migrate -path=$(MIGRATION_DIR) -database=$(DATABASE_DSN) down 1

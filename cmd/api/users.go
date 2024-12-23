@@ -36,7 +36,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	v := validator.New()
 	if data.ValidateUser(v, user); !v.Valid() {
-		app.unprocessableEntityResponse(w, r, v.Errors)
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		switch {
 		case errors.Is(err, data.ErrDuplicatedEmail):
 			v.AddError("email", "a user with this email address already exists")
-			app.unprocessableEntityResponse(w, r, v.Errors)
+			app.failedValidationResponse(w, r, v.Errors)
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
@@ -91,7 +91,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	v := validator.New()
 
 	if data.ValidateTokenPlaintext(v, input.TokenPlaintext); !v.Valid() {
-		app.unprocessableEntityResponse(w, r, v.Errors)
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -100,7 +100,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
-			app.unprocessableEntityResponse(w, r, v.Errors)
+			app.failedValidationResponse(w, r, v.Errors)
 		default:
 			app.serverErrorResponse(w, r, err)
 		}

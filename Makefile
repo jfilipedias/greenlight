@@ -1,10 +1,6 @@
 include .env
 export
 
-CMD_DIR=./cmd/api
-BINARY_NAME=./bin/api
-MIGRATION_DIR=./migrations
-
 ## help: prints this help message
 .PHONY: help
 help:
@@ -24,31 +20,32 @@ tidy: confirm
 ## clean: remove built binary
 .PHONY: clean
 clean: confirm
-	rm -f ${BINARY_NAME}
+	rm -f ./bin/api
 
 ## build/api: compile the cmd/api application
 .PHONY: build/api
 build/api:
-	go build -o ${BINARY_NAME} ${CMD_DIR}
+	go build -o ./bin/api ./cmd/api
 
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	go run ${CMD_DIR}
+	@echo
+	go run ./cmd/api -db-dsn=${DATABASE_DSN} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASSWORD}
 
 ## help/api: prints the cmd/api application help message
 .PHONY: help/api
 help/api:
-	go run ${CMD_DIR} -help
+	go run ./cmd/api -help
 
 ## migrations/new name=$1: create a new database migration
 .PHONY: migrations/new
 migrations/new:
 	@echo 'Creating migration files for ${name}...'
-	migrate create -seq -ext sql -dir=${MIGRATION_DIR} ${name}
+	migrate create -seq -ext sql -dir ./migrations ${name}
 
 ## migrations/up: apply all up database migrations
 .PHONY: migrations/up
 migrations/up: confirm
 	@echo 'Running up migrations...'
-	migrate -path ${MIGRATION_DIR} -database ${DATABASE_DSN} up
+	migrate -path ./migrations -database ${DATABASE_DSN} up

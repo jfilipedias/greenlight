@@ -1,6 +1,10 @@
 include .env
 export
 
+# ==================================================================================== #
+# HELPERS
+# ==================================================================================== #
+
 ## help: prints this help message
 .PHONY: help
 help:
@@ -11,26 +15,13 @@ help:
 confirm:
 	@echo 'Are you sure? [y/N]' && read ans && [ $${ans:-N} = y ]
 
-## tidy: format code and fix modules related problems
-.PHONY: tidy
-tidy: confirm
-	go fmt ./...
-	go mod tidy -v
-
-## clean: remove built binary
-.PHONY: clean
-clean: confirm
-	rm -f ./bin/api
-
-## build/api: compile the cmd/api application
-.PHONY: build/api
-build/api:
-	go build -o ./bin/api ./cmd/api
+# ==================================================================================== #
+# DEVELOPMENT
+# ==================================================================================== #
 
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	@echo
 	go run ./cmd/api -db-dsn=${DATABASE_DSN} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASSWORD}
 
 ## help/api: prints the cmd/api application help message
@@ -49,3 +40,27 @@ migrations/new:
 migrations/up: confirm
 	@echo 'Running up migrations...'
 	migrate -path ./migrations -database ${DATABASE_DSN} up
+
+# ==================================================================================== #
+# QUALITY CONTROL
+# ==================================================================================== #
+
+## tidy: format all .go files and tidy module dependencies
+.PHONY: tidy
+tidy:
+	@echo 'Formatting .go files...'
+	go fmt ./...
+	@echo 'Tidying module dependencies...'
+	go mod tidy
+
+## audit: run quality control checks
+.PHONY: audit
+audit:
+	@echo 'Checking module dependencies'
+	go mod tidy -diff
+	go mod verify
+	@echo 'Vetting code...'
+	go vet ./...
+	staticcheck ./...
+	@echo 'Running tests...'
+	go test -race -vet=off ./...

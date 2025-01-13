@@ -80,7 +80,6 @@ build/api:
 # PRODUCTION
 # ==================================================================================== #
 
-
 ## production/connect: connect to the production server
 .PHONY: production/connect
 production/connect:
@@ -91,4 +90,13 @@ production/connect:
 production/deploy/api:
 	rsync -P ./bin/linux_amd64/api greenlight@${PRODUCTION_HOST}:~
 	rsync -rP --delete ./migrations greenlight@${PRODUCTION_HOST}:~
-	ssh -t greenlight@${PRODUCTION_HOST} 'migrate -path ~/migrations -database $$GREENLIGHT_DB_DSN up'
+	rsync -P ./remote/production/api.service greenlight@${PRODUCTION_HOST}:~
+	rsync -P ./remote/production/Caddyfile greenlight@${PRODUCTION_HOST}:~
+	sh -t greenlight@${PRODUCTION_HOST} '\
+		migrate -path ~/migrations -database $$GREENLIGHT_DB_DSN up \
+		&& sudo mv ~/api.service /etc/systemd/system/ \
+		&& sudo systemctl enable api \
+		&& sudo systemctl restart api \
+		&& sudo mv ~/Caddyfile /etc/caddy/ \
+		&& sudo systemctl reload caddy \
+	'

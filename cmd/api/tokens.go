@@ -128,7 +128,7 @@ func (app *application) createPasswordResetTokenHandler(w http.ResponseWriter, r
 func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Password       string `json:"password"`
-		tokenPlaintext string `json:"token"`
+		TokenPlaintext string `json:"token"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -140,14 +140,14 @@ func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http
 	v := validator.New()
 
 	data.ValidatePasswordPlaintext(v, input.Password)
-	data.ValidateTokenPlaintext(v, input.tokenPlaintext)
+	data.ValidateTokenPlaintext(v, input.TokenPlaintext)
 
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	user, err := app.models.Users.GetForToken(data.ScopePasswordReset, input.tokenPlaintext)
+	user, err := app.models.Users.GetForToken(data.ScopePasswordReset, input.TokenPlaintext)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
